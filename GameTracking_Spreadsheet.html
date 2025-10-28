@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tracker</title>
+    <style>        :root {
+            /*All colors & font that can be edited here for the rest of the document*/
+            --color_page-bg: #ffffff;
+            --color_body-bg: #F9F9F9;
+            --color-surface: #FFE6F2;
+            --color-border: #F2B8DC;
+            --color-surface-hover: #FBD1E6;
+            --color-button: #FFD6EB;
+            --color_text: #333333;
+            --color_table-border: #CCCCCC;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--color_body-bg);
+            margin: 20px;
+            color: var(--color_text);
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            display: inline;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background-color: var(--color-surface);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 30%;
+        }
+
+        table {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid var(--color_table-border);
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        #title, #rating {
+          text-align: center;
+        }
+
+        button {
+            width: auto;
+            height: 30px;
+            padding: 5px 8px;
+            font-size: 14px;
+            border: 2px solid var(--color-border);
+            border-radius: 5px;
+            background-color: var(--color-surface);
+            color: var(--color_text);;
+        }
+
+        button:hover {
+            background-image: linear-gradient(rgb(0 0 0/5%)0 0);
+        }
+        
+        #json_file_input {
+        float: right;
+        }
+
+        .custom-dropdown {
+            width: auto;
+            height: 30px;
+            padding: 5px 8px;
+            margin: 2px;
+            font-size: 14px;
+            border: 2px solid var(--color-border);
+            border-radius: 5px;
+            background-color: var(--color-surface);
+            color: var(--color_text);
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .custom-dropdown:hover {
+            border-color: var(--color-border);
+            background-image: linear-gradient(rgb(0 0 0/5%)0 0);
+        }
+
+        .custom-dropdown:focus {
+            border-color: var(--color-border);
+            background-color: var(--color-button);
+        }
+
+        .custom-dropdown option {
+            padding: 10px;
+            background-color: var(--color-surface);
+            color: var(--color_text);
+        }
+        
+        input, textarea[name="formInputBubble"] {
+            width: 85px;
+            height: auto;
+            padding: 5px 8px;
+            font-size: 14px;
+            border: 2px solid var(--color-border);
+            border-radius: 5px;
+            background-color: var(--color-surface);
+            color: var(--color_text);;
+        }
+
+        textarea {
+            resize: none;
+            
+        }
+
+
+       .inline-dropdown {
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            padding: 0;
+            margin-left: 2px;
+            margin-top: 2px;
+            border-radius: 5px;
+            background-color: var(--color-surface);
+            color: transparent;
+            cursor: pointer;
+            appearance: none;
+            border: 2px solid var(--color-border);
+            border-radius: 3px;
+            text-align: center;
+            position: relative;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 12px;
+            user-select: none;
+        }
+
+        .inline-dropdown option {
+          color: var(--color_text);
+        }
+
+        .inline-dropdown:focus {
+          color: transparent;
+          -webkit-text-fill-color: transparent;
+          -moz-text-fill-color: transparent;
+        }
+
+        .tooltip {
+          position: relative;
+        }
+
+        .tooltiptext {
+          visibility: hidden;
+          background-color: black;
+          color: #FFFFFF;
+        }
+
+        .tooltiptext:hover .tooltiptext {
+          visibility: visible;
+        }
+      
+      </style>
+</head>
+<body>
+    <h1>Game Tracker</h1>
+
+    <div id="json_file_input">
+        <input type="file" id="fileInput" accept=".json"><br>
+        <button onclick="downloadGameData()">Download JSON</button>
+      </div>
+    </form>
+    
+    <form id="gameForm">
+        <label for="title">Game Title:</label>
+        <input type="text" id="title" name="formInputBubble" required>
+        <br>
+        
+        <label for="hoursPlayed">Hours Played:</label>
+        <input type="number" id="hoursPlayed" name="formInputBubble" required step="0.1">
+        <br>
+        
+        <label for="status">Completion Status:</label>
+        <select id="status" class="custom-dropdown">
+            <option value=""></option>
+            <option value="Not Played">Not Played</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+        <br>
+        
+        <label for="notes">Notes:</label>
+        <textarea id="notes" name="formInputBubble"></textarea>
+
+        <label for="rating">Rating (1-10):</label>
+        <input type="number" id="rating" min="1" max="10">
+        <br>
+        
+        <button type="submit">Save Game</button>
+
+    <table id="gamesTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable('title')">Title</th>
+                <th onclick="sortTable('hoursPlayed')">Hours Played</th>
+                <th>Status
+                  <select id="statusOrder" class="inline-dropdown" title="Sort by Status">
+                    <option value=""></option>
+                    <option value="Not Played">Not Played</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </th>
+                <th onclick="sortTable('rating')">Rating</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+  <script>
+
+    let gameData = [];
+    let editingGameIndex = null;
+
+    const form = document.getElementById('gameForm');
+    const tableBody = document.querySelector('#gamesTable tbody');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value.trim();
+      if (!title) return alert("Title is required");
+
+      const game = {
+        title,
+        hoursPlayed: document.getElementById('hoursPlayed').value,
+        status: document.getElementById('status').value,
+        notes: document.getElementById('notes').value,
+        rating: document.getElementById('rating').value
+      };
+
+      if (editingGameIndex !== null) {
+        gameData[editingGameIndex] = game;
+        editingGameIndex = null;
+      } else {
+        gameData.push(game);
+      }
+
+      localStorage.setItem('games', JSON.stringify(gameData));
+      form.reset();
+      document.getElementById('status').selectedIndex = 0;
+      renderTable();
+      });
+
+    function renderTable() {
+      tableBody.innerHTML = '';
+      gameData.forEach((game, index) => {
+      const row = tableBody.insertRow();
+      row.innerHTML = `
+        <td id="title">${game.title}</td>
+        <td>${game.hoursPlayed}</td>
+        <td>${game.status}</td>
+        <td id="rating">${game.rating || ''}</td>
+        <td id="notes" class="tooltip">${game.notes}<span class="tooltiptext">${game.notes}</span></td>
+        <td>
+          <button onclick="editGame(${index})">Edit</button>
+          <button onclick="deleteGame(${index})">Delete</button>
+        </td>
+      `;
+    });
+}
+
+    function editGame(index) {
+      const game = gameData[index];
+      document.getElementById('title').value = game.title;
+      document.getElementById('hoursPlayed').value = game.hoursPlayed;
+      document.getElementById('status').value = game.status;
+      document.getElementById('rating').value = game.rating;
+      document.getElementById('notes').value = game.notes;
+      editingGameIndex = index;
+    }
+
+    function deleteGame(index) {
+      gameData.splice(index, 1);
+      localStorage.setItem('games', JSON.stringify(gameData));
+      renderTable();
+    }
+
+    function downloadGameData() {
+      const blob = new Blob ([JSON.stringify(gameData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "games.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    let currentSort = { key: null, ascending: true };
+
+function sortTable(key) {
+  if (currentSort.key === key) {
+    currentSort.ascending = !currentSort.ascending;
+  } else {
+    currentSort.key = key;
+    currentSort.ascending = true;
+  }
+
+  const statusOrder = {
+    'Not Played': 1,
+    'In Progress': 2,
+    'Completed': 3,
+    '': 4
+  };
+
+  gameData.sort((a, b) => {
+    let valA = a[key] ?? '';
+    let valB = b[key] ?? '';
+
+if (key === 'status') {
+  valA = statusOrder[valA] ?? 4;
+  valB = statusOrder [valB] ?? 4;
+} else if (!isNaN(valA) && !isNaN(valB)) {
+  valA = Number(valA);
+  valB = Number(valB);
+} else {
+      valA = valA.toString().toLowerCase();
+      valB = valB.toString().toLowerCase();
+    }
+
+    if (valA < valB) return currentSort.ascending ? -1 : 1;
+    if (valA > valB) return currentSort.ascending ? 1 : -1;
+    return 0;
+  });
+
+  renderTable();
+}
+
+document.getElementById('fileInput').addEventListener('change', function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      loadGameDataFromFile(data);
+    } catch {
+      alert("Invalid JSON file.");
+    }
+  };
+  reader.readAsText(file);
+});
+
+function loadGameDataFromFile(data) {
+  gameData = data;
+  renderTable();}
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedGames = localStorage.getItem('games');
+    if (savedGames) {
+      gameData = JSON.parse(savedGames);
+      renderTable();
+    }
+  });
+
+  
+
+</script>
+
+</body>
+</html>
