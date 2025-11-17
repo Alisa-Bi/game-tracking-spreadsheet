@@ -1,180 +1,197 @@
+<!--add button to delete everything & confirmation-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Tracker</title>
-    <style>        :root {
+    <style>
+    :root {
             /*All colors & font that can be edited here for the rest of the document*/
+            /* V A R I A B L E S*/
             --color_page-bg: #ffffff;
             --color_body-bg: #F9F9F9;
-            --color-surface: #FFE6F2;
-            --color-border: #F2B8DC;
-            --color-surface-hover: #FBD1E6;
-            --color-button: #FFD6EB;
+            --color-surface: #FDFDFDFD;
+            --color-border: #DDD;
+            --color-border-hover: #BBB;
+            --color-button: #FFCEE6;
             --color_text: #333333;
             --color_table-border: #CCCCCC;
             --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --transition: 0.2s easy;
         }
 
         body {
+          /*B A S E  S T Y L E*/
             font-family: var(--font-family);
             background-color: var(--color_body-bg);
-            margin: 20px;
             color: var(--color_text);
-        }
+            padding: 1rem;
+            line-height: 1.4;}
 
-        h1, h2 {
-            margin-bottom: 20px;
+        h1 {
             text-align: center;
             display: inline;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
         }
 
+        /*F O R M*/
         form {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 0.5rem;
+            padding: 0.75rem;
             background-color: var(--color-surface);
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            width: 30%;
+            border-radius: 6px;
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
         }
 
-        table {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table, th, td {
-            border: 1px solid var(--color_table-border);
-        }
-
-        th, td {
-            padding: 5px;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        #title, #rating {
-          text-align: center;
-        }
-
-        button {
-            width: auto;
-            height: 30px;
-            padding: 5px 8px;
-            font-size: 14px;
-            border: 2px solid var(--color-border);
-            border-radius: 5px;
-            background-color: var(--color-surface);
-            color: var(--color_text);;
-        }
-
-        button:hover {
-            background-image: linear-gradient(rgb(0 0 0/5%)0 0);
-        }
-        
-        #json_file_input {
-        float: right;
-        }
-
-        .custom-dropdown {
-            width: auto;
-            height: 30px;
-            padding: 5px 8px;
-            margin: 2px;
-            font-size: 14px;
-            border: 2px solid var(--color-border);
-            border-radius: 5px;
+        input, textarea, select, button {
+            font-family: var(--font-family);
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
             background-color: var(--color-surface);
             color: var(--color_text);
-            cursor: pointer;
             outline: none;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
-        .custom-dropdown:hover {
-            border-color: var(--color-border);
-            background-image: linear-gradient(rgb(0 0 0/5%)0 0);
-        }
-
-        .custom-dropdown:focus {
-            border-color: var(--color-border);
-            background-color: var(--color-button);
-        }
-
-        .custom-dropdown option {
-            padding: 10px;
-            background-color: var(--color-surface);
-            color: var(--color_text);
-        }
-        
-        input, textarea[name="formInputBubble"] {
-            width: 85px;
-            height: auto;
-            padding: 5px 8px;
-            font-size: 14px;
-            border: 2px solid var(--color-border);
-            border-radius: 5px;
-            background-color: var(--color-surface);
-            color: var(--color_text);;
+        input[type="number"] {
+          width: 5rem;
         }
 
         textarea {
             resize: none;
-            
+            height: 2rem;
         }
 
+        select {
+          padding-right: 1.5rem;
+        }
 
-       .inline-dropdown {
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            padding: 0;
-            margin-left: 2px;
-            margin-top: 2px;
-            border-radius: 5px;
-            background-color: var(--color-surface);
-            color: transparent;
+        input:focus, textarea:focus, select:focus {
+          border-color: var(--color-border-hover);
+          box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /*B U T T O N S*/
+        button {
             cursor: pointer;
-            appearance: none;
-            border: 2px solid var(--color-border);
-            border-radius: 3px;
+            border: none;
+            background-color: var(--color-button);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: #FFB3D9;
+        }
+
+        /*T A B L E S*/
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background-color: var(--color-surface);
+            box-shadow: var(--shadow);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.4rem 0.6rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        thead th {
+          white-space: nowrap;
+          height: 2rem;
+          vertical-align: middle;
+          font-weight: 600;
+        }
+
+        tr:hover {
+          background-color: #FFE6F2;
+        }
+
+        /*I N L I N E  D R O P D O W N*/
+        .inline-dropdown {
+            height: 1.5rem;
+            padding: 0.025rem;
+            font-size: 0.8rem;
             text-align: center;
-            position: relative;
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 12px;
-            user-select: none;
+            box-sizing: border-box;
         }
 
-        .inline-dropdown option {
-          color: var(--color_text);
-        }
-
-        .inline-dropdown:focus {
-          color: transparent;
-          -webkit-text-fill-color: transparent;
-          -moz-text-fill-color: transparent;
-        }
-
+        /*T O O L T I P*/
         .tooltip {
           position: relative;
+          cursor: help;
         }
 
         .tooltiptext {
           visibility: hidden;
-          background-color: black;
+          background-color: #333;
           color: #FFFFFF;
+          padding: 0.2rem 0.4rem;
+          font-size: 0.75rem;
+          border-radius: 3px;
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          white-space: pre-wrap;
+          z-index: 10;
         }
 
         .tooltiptext:hover .tooltiptext {
           visibility: visible;
         }
+
+        /*F I L E  I N P U T ,  D O W N L O A D*/
+        #json_file_input {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        }
+
+        #json_file_input input, #json_file_input button {
+          font-size: 0.85rem;
+          padding: 0.3rem 0.5rem;
+        }
+
+        /*L A Y O U T*/
+        #mainContainer {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        @media (min-width: 800px) {
+          #mainContainer {
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 2rem;
+          }
+        }
+
+        #gameForm {
+          flex: 1 1 250px;
+        }
       
+        #gamesTable {
+          flex: 2 1 500px;
+        }
+
       </style>
 </head>
 <body>
@@ -186,14 +203,13 @@
       </div>
     </form>
     
+<div id="mainContainer">
     <form id="gameForm">
         <label for="title">Game Title:</label>
         <input type="text" id="title" name="formInputBubble" required>
-        <br>
         
         <label for="hoursPlayed">Hours Played:</label>
         <input type="number" id="hoursPlayed" name="formInputBubble" required step="0.1">
-        <br>
         
         <label for="status">Completion Status:</label>
         <select id="status" class="custom-dropdown">
@@ -202,16 +218,15 @@
             <option value="In Progress">In Progress</option>
             <option value="Completed">Completed</option>
         </select>
-        <br>
         
         <label for="notes">Notes:</label>
         <textarea id="notes" name="formInputBubble"></textarea>
 
         <label for="rating">Rating (1-10):</label>
         <input type="number" id="rating" min="1" max="10">
-        <br>
         
         <button type="submit">Save Game</button>
+    </form>
 
     <table id="gamesTable">
         <thead>
@@ -233,7 +248,7 @@
         </thead>
         <tbody></tbody>
     </table>
-
+</div>
   <script>
 
     let gameData = [];
