@@ -1,404 +1,332 @@
-<!--add button to delete everything & confirmation-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Tracker</title>
+    <title>Game Spreadsheet</title>
     <style>
-    :root {
-            /*All colors & font that can be edited here for the rest of the document*/
-            /* V A R I A B L E S*/
-            --color_page-bg: #ffffff;
-            --color_body-bg: #F9F9F9;
-            --color-surface: #FDFDFDFD;
-            --color-border: #DDD;
-            --color-border-hover: #BBB;
-            --color-button: #FFCEE6;
-            --color_text: #333333;
-            --color_table-border: #CCCCCC;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            --transition: 0.2s easy;
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #666;
+            --accent: #6366f1;
+            --danger: #ef4444;
+            --border: #e5e7eb;
+            --radius: 6px;
+            --font-main: system-ui, -apple-system, sans-serif;
         }
 
-        body {
-          /*B A S E  S T Y L E*/
-            font-family: var(--font-family);
-            background-color: var(--color_body-bg);
-            color: var(--color_text);
-            padding: 1rem;
-            line-height: 1.4;}
-
-        h1 {
-            text-align: center;
-            display: inline;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
+        [data-theme="dark"] {
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #e0e0e0;
+            --border: #333;
         }
 
-        /*F O R M*/
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 0.75rem;
-            background-color: var(--color-surface);
-            border-radius: 6px;
-            box-shadow: var(--shadow);
-            font-size: 0.9rem;
+        [data-theme="cyberpunk"] {
+            --bg-body: #050505;
+            --bg-card: #001212;
+            --text-main: #00ffcc;
+            --accent: #0077ff;
+            --border: #008888;
+            --font-main: 'Courier New', monospace;
         }
 
-        input, textarea, select, button {
-            font-family: var(--font-family);
-            font-size: 0.85rem;
-            padding: 0.25rem 0.5rem;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            background-color: var(--color-surface);
-            color: var(--color_text);
-            outline: none;
-            transition: var(--transition);
+        [data-theme="cyberpink"] {
+            --bg-body: #050005; 
+            --bg-card: #0d000d; 
+            --text-main: #ff99ff;
+            --accent: #bc13fe;
+            --border: #800080;
+            --font-main: 'Courier New', monospace;
         }
 
-        input[type="number"] {
-          width: 5rem;
+        [data-theme="cyberpurple"] {
+            --bg-body: #040008;
+            --bg-card: #0b0014;
+            --text-main: #ffb3ff;
+            --accent: #a020f0;
+            --border: #520085;
+            --font-main: 'Courier New', monospace;
         }
 
-        textarea {
-            resize: none;
-            height: 2rem;
-        }
+        body { font-family: var(--font-main); background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; font-size: 0.85rem; transition: background 0.3s; }
+        
+        .layout { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-start; }
+        .card { background: var(--bg-card); padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 
-        select {
-          padding-right: 1.5rem;
-        }
+        .controls { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+        .form-sidebar { width: 260px; }
 
-        input:focus, textarea:focus, select:focus {
-          border-color: var(--color-border-hover);
-          box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
-        }
+        #gameForm { display: flex; flex-direction: column; gap: 8px; }
+        .compact-row { display: flex; align-items: center; gap: 6px; }
+        .compact-row label { white-space: nowrap; min-width: 65px; font-weight: 600; }
+        
+        .note-row { align-items: flex-start; }
+        .note-row textarea { height: 60px; }
 
-        /*B U T T O N S*/
-        button {
-            cursor: pointer;
-            border: none;
-            background-color: var(--color-button);
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            transition: var(--transition);
-        }
+        .hour-split { display: flex; align-items: center; gap: 2px; }
+        .hour-split input { width: 60px !important; text-align: center; }
 
-        button:hover {
-            background-color: #FFB3D9;
+        input, select, textarea { 
+            padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; 
+            background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 0.85rem;
+            width: 100%; box-sizing: border-box;
+            transition: all 0.2s ease;
         }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        textarea { resize: none; }
+        .char-count { font-size: 0.65rem; text-align: right; color: var(--text-muted); margin-top: 2px; }
+        
+        .btn { cursor: pointer; border: none; padding: 5px 12px; border-radius: 4px; font-weight: 600; font-size: 0.8rem; white-space: nowrap; transition: all 0.2s ease; }
+        .btn-primary { background: var(--accent); color: white; flex-grow: 2; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
 
-        /*T A B L E S*/
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            background-color: var(--color-surface);
-            box-shadow: var(--shadow);
-            border-radius: 6px;
-            overflow: hidden;
-        }
+        /* HOVER LOGIC: Cyber-only Glow */
+        [data-theme^="cyber"] .btn-primary:hover { filter: brightness(1.2); box-shadow: 0 0 12px var(--accent); transform: translateY(-1px); }
+        [data-theme^="cyber"] .btn-danger:hover { box-shadow: 0 0 12px var(--danger); transform: translateY(-1px); }
+        [data-theme^="cyber"] .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(255, 255, 255, 0.05); }
 
-        th, td {
-            padding: 0.4rem 0.6rem;
-            text-align: left;
-            border-bottom: 1px solid var(--color-border);
-        }
+        /* HOVER LOGIC: Standard Themes */
+        [data-theme="light"] .btn-primary:hover, [data-theme="dark"] .btn-primary:hover { filter: brightness(0.9); }
+        [data-theme="light"] .btn-outline:hover { background: rgba(0, 0, 0, 0.05); }
+        [data-theme="dark"] .btn-outline:hover { background: rgba(255, 255, 255, 0.05); }
 
-        thead th {
-          white-space: nowrap;
-          height: 2rem;
-          vertical-align: middle;
-          font-weight: 600;
-        }
+        .table-wrap { flex-grow: 1; position: relative; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+        thead th { position: sticky; top: 0; z-index: 50; background: var(--bg-card); padding: 10px 8px; border-bottom: 2px solid var(--border); text-align: left; }
+        td { padding: 8px; border-bottom: 1px solid var(--border); text-align: left; overflow: hidden; }
+        
+        tbody tr:hover { background-color: rgba(0, 0, 0, 0.03); }
+        [data-theme="dark"] tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+        [data-theme="cyberpunk"] tbody tr:hover { background-color: rgba(0, 255, 202, 0.05); }
+        [data-theme="cyberpink"] tbody tr:hover { background-color: rgba(255, 153, 255, 0.08); }
+        [data-theme="cyberpurple"] tbody tr:hover { background-color: rgba(160, 32, 240, 0.12); }
 
-        tr:hover {
-          background-color: #FFE6F2;
-        }
-
-        /*I N L I N E  D R O P D O W N*/
-        .inline-dropdown {
-            height: 1.5rem;
-            padding: 0.025rem;
-            font-size: 0.8rem;
-            text-align: center;
-            box-sizing: border-box;
-        }
-
-        /*T O O L T I P*/
-        .tooltip {
-          position: relative;
-          cursor: help;
-        }
-
-        .tooltiptext {
-          visibility: hidden;
-          background-color: #333;
-          color: #FFFFFF;
-          padding: 0.2rem 0.4rem;
-          font-size: 0.75rem;
-          border-radius: 3px;
-          position: absolute;
-          top: 100%;
-          left: 50%;
-          transform: translateX(-50%);
-          white-space: pre-wrap;
-          z-index: 10;
-        }
-
-        .tooltiptext:hover .tooltiptext {
-          visibility: visible;
-        }
-
-        /*F I L E  I N P U T ,  D O W N L O A D*/
-        #json_file_input {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        }
-
-        #json_file_input input, #json_file_input button {
-          font-size: 0.85rem;
-          padding: 0.3rem 0.5rem;
-        }
-
-        /*L A Y O U T*/
-        #mainContainer {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        @media (min-width: 800px) {
-          #mainContainer {
-            flex-direction: row;
-            align-items: flex-start;
-            gap: 2rem;
-          }
-        }
-
-        #gameForm {
-          flex: 1 1 250px;
-        }
-      
-        #gamesTable {
-          flex: 2 1 500px;
-        }
-
-      </style>
+        .status-tag { padding: 2px 4px; border-radius: 3px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(0,0,0,0.1); display: inline-block; }
+        .notes-truncate, .game-truncate { white-space: nowrap; text-overflow: ellipsis; display: block; max-width: 100%; cursor: help; }
+        
+        .col-game { width: 15%; } .col-hrs { width: 70px; } .col-status { width: 95px; } .col-stars { width: 40px; } .col-notes { width: 150px; } .col-actions { width: 100px; text-align: right; }
+    </style>
 </head>
-<body>
-    <h1>Game Tracker</h1>
+<body data-theme="light">
 
-    <div id="json_file_input">
-        <input type="file" id="fileInput" accept=".json"><br>
-        <button onclick="downloadGameData()">Download JSON</button>
-      </div>
-    </form>
+<div class="controls">
+    <h3 style="margin:0; margin-right:10px;">Game Spreadsheet</h3>
+    <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterGames()" style="width: 200px;">
+    <button class="btn btn-outline" onclick="downloadGameData()">Export</button>
+    <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">Import</button>
+    <input type="file" id="fileInput" accept=".json" style="display:none;">
     
-<div id="mainContainer">
-    <form id="gameForm">
-        <label for="title">Game Title:</label>
-        <input type="text" id="title" name="formInputBubble" required>
-        
-        <label for="hoursPlayed">Hours Played:</label>
-        <input type="number" id="hoursPlayed" name="formInputBubble" required step="0.1">
-        
-        <label for="status">Completion Status:</label>
-        <select id="status" class="custom-dropdown">
-            <option value=""></option>
-            <option value="Not Played">Not Played</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-        </select>
-        
-        <label for="notes">Notes:</label>
-        <textarea id="notes" name="formInputBubble"></textarea>
+    <select id="themeSelect" onchange="changeTheme(this.value)" style="width: 120px;">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="cyberpunk">Cyber Punk</option>
+        <option value="cyberpink">Cyber Pink</option>
+        <option value="cyberpurple">Cyber Purple</option>
+    </select>
 
-        <label for="rating">Rating (1-10):</label>
-        <input type="number" id="rating" min="1" max="10">
-        
-        <button type="submit">Save Game</button>
-    </form>
+    <div style="margin-left: auto; display: flex; gap: 5px;">
+        <button class="btn btn-outline" id="initialDeleteBtn" onclick="toggleSafetyLock()">Clear All</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn" style="display:none;" onclick="executeDeleteAll()">CONFIRM DELETE</button>
+    </div>
+</div>
 
-    <table id="gamesTable">
-        <thead>
-            <tr>
-                <th onclick="sortTable('title')">Title</th>
-                <th onclick="sortTable('hoursPlayed')">Hours Played</th>
-                <th>Status
-                  <select id="statusOrder" class="inline-dropdown" title="Sort by Status">
-                    <option value=""></option>
+<div class="layout">
+    <div class="card form-sidebar">
+        <form id="gameForm">
+            <div class="compact-row"><label>Title</label><input type="text" id="title" required></div>
+            <div class="compact-row">
+                <label>Hours</label>
+                <div class="hour-split">
+                    <input type="number" id="hrsWhole" value="0" min="0">
+                    <span>.</span>
+                    <input type="number" id="hrsDec" value="0" min="-1" max="10" oninput="handleDecimalWrap(this)">
+                </div>
+            </div>
+            <div class="compact-row">
+                <label>Status</label>
+                <select id="status">
                     <option value="Not Played">Not Played</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
-                  </select>
-                </th>
-                <th onclick="sortTable('rating')">Rating</th>
-                <th>Notes</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+                </select>
+            </div>
+            <div class="compact-row"><label>Rating</label><input type="number" id="rating" min="1" max="10"></div>
+            <div class="compact-row note-row">
+                <label>Notes</label>
+                <div style="flex-grow:1;">
+                    <textarea id="notes" maxlength="500" oninput="updateCharCount()"></textarea>
+                    <div class="char-count"><span id="currentChar">0</span>/500</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
+                <button type="button" class="btn btn-outline" onclick="clearForm()">Clear</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-game" onclick="sortTable('title')">Game</th>
+                    <th class="col-hrs" onclick="sortTable('hoursPlayed')">Hrs</th>
+                    <th class="col-status" onclick="sortTable('status')">Status</th>
+                    <th class="col-stars" onclick="sortTable('rating')">⭐</th>
+                    <th class="col-notes">Notes</th>
+                    <th class="col-actions"></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 </div>
-  <script>
 
-    let gameData = [];
+<script>
+    let gameData = JSON.parse(localStorage.getItem('games')) || [];
     let editingGameIndex = null;
-
     const form = document.getElementById('gameForm');
-    const tableBody = document.querySelector('#gamesTable tbody');
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
+    function updateCharCount() { document.getElementById('currentChar').innerText = document.getElementById('notes').value.length; }
 
-      const title = document.getElementById('title').value.trim();
-      if (!title) return alert("Title is required");
-
-      const game = {
-        title,
-        hoursPlayed: document.getElementById('hoursPlayed').value,
-        status: document.getElementById('status').value,
-        notes: document.getElementById('notes').value,
-        rating: document.getElementById('rating').value
-      };
-
-      if (editingGameIndex !== null) {
-        gameData[editingGameIndex] = game;
-        editingGameIndex = null;
-      } else {
-        gameData.push(game);
-      }
-
-      localStorage.setItem('games', JSON.stringify(gameData));
-      form.reset();
-      document.getElementById('status').selectedIndex = 0;
-      renderTable();
-      });
-
-    function renderTable() {
-      tableBody.innerHTML = '';
-      gameData.forEach((game, index) => {
-      const row = tableBody.insertRow();
-      row.innerHTML = `
-        <td id="title">${game.title}</td>
-        <td>${game.hoursPlayed}</td>
-        <td>${game.status}</td>
-        <td id="rating">${game.rating || ''}</td>
-        <td id="notes" class="tooltip">${game.notes}<span class="tooltiptext">${game.notes}</span></td>
-        <td>
-          <button onclick="editGame(${index})">Edit</button>
-          <button onclick="deleteGame(${index})">Delete</button>
-        </td>
-      `;
-    });
-}
-
-    function editGame(index) {
-      const game = gameData[index];
-      document.getElementById('title').value = game.title;
-      document.getElementById('hoursPlayed').value = game.hoursPlayed;
-      document.getElementById('status').value = game.status;
-      document.getElementById('rating').value = game.rating;
-      document.getElementById('notes').value = game.notes;
-      editingGameIndex = index;
+    function handleDecimalWrap(el) {
+        if (parseInt(el.value) > 9) el.value = 0;
+        if (parseInt(el.value) < 0) el.value = 9;
     }
 
-    function deleteGame(index) {
-      gameData.splice(index, 1);
-      localStorage.setItem('games', JSON.stringify(gameData));
-      renderTable();
+    function changeTheme(theme) { 
+        document.body.setAttribute('data-theme', theme); 
+        localStorage.setItem('game-tracker-theme', theme); 
+        renderTable(); 
+    }
+
+    function clearForm() {
+        form.reset();
+        document.getElementById('hrsWhole').value = 0;
+        document.getElementById('hrsDec').value = 0;
+        editingGameIndex = null;
+        document.getElementById('saveBtn').innerText = "Save";
+        updateCharCount();
+    }
+
+    function toggleSafetyLock() {
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        const initialBtn = document.getElementById('initialDeleteBtn');
+        const isHidden = confirmBtn.style.display === "none";
+        confirmBtn.style.display = isHidden ? "inline-block" : "none";
+        initialBtn.innerText = isHidden ? "Cancel" : "Clear All";
+    }
+
+    function executeDeleteAll() {
+        gameData = []; saveData(); renderTable(); toggleSafetyLock();
+    }
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const titleVal = document.getElementById('title').value.trim();
+        const totalHours = `${document.getElementById('hrsWhole').value}.${document.getElementById('hrsDec').value}`;
+        const game = {
+            title: titleVal,
+            hoursPlayed: totalHours,
+            status: document.getElementById('status').value,
+            notes: document.getElementById('notes').value,
+            rating: document.getElementById('rating').value
+        };
+
+        if (editingGameIndex !== null) { gameData[editingGameIndex] = game; } 
+        else { gameData.push(game); }
+        saveData(); clearForm(); renderTable();
+    });
+
+    function saveData() { localStorage.setItem('games', JSON.stringify(gameData)); }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        const currentTheme = document.body.getAttribute('data-theme');
+
+        gameData.forEach((game, index) => {
+            let style = "";
+            if (currentTheme.startsWith('cyber')) {
+                if (game.status === 'In Progress') style = `color: var(--text-main); border-color: var(--text-main); background: transparent;`;
+                else if (game.status === 'Completed') style = `color: var(--accent); border-color: var(--accent); background: transparent;`;
+                else style = `color: #555; border-color: #555; background: transparent;`;
+            } else {
+                if (game.status === 'In Progress') style = (currentTheme === 'dark') ? "background: #1e3a8a; color: #dbeafe;" : "background: #dbeafe; color: #1e40af;";
+                else if (game.status === 'Completed') style = (currentTheme === 'dark') ? "background: #064e3b; color: #dcfce7;" : "background: #dcfce7; color: #166534;";
+                else style = (currentTheme === 'dark') ? "background: #374151; color: #f3f4f6;" : "background: #e5e7eb; color: #374151;";
+            }
+
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td class="col-game"><b class="game-truncate" title="${game.title}">${game.title}</b></td>
+                <td class="col-hrs">${game.hoursPlayed}</td>
+                <td class="col-status"><span class="status-tag" style="${style}">${game.status}</span></td>
+                <td class="col-stars">${game.rating || '-'}</td>
+                <td class="col-notes"><span class="notes-truncate" title="${game.notes}">${game.notes || ''}</span></td>
+                <td class="col-actions">
+                    <button class="btn btn-outline" style="padding:2px 6px" onclick="editGame(${index})">Edit</button>
+                    <button class="btn btn-danger" style="padding:2px 6px" onclick="deleteGame(${index})">✕</button>
+                </td>`;
+        });
+    }
+
+    function editGame(index) {
+        const g = gameData[index];
+        document.getElementById('title').value = g.title;
+        const parts = g.hoursPlayed.split('.');
+        document.getElementById('hrsWhole').value = parts[0];
+        document.getElementById('hrsDec').value = parts[1];
+        document.getElementById('status').value = g.status;
+        document.getElementById('rating').value = g.rating;
+        document.getElementById('notes').value = g.notes;
+        editingGameIndex = index;
+        document.getElementById('saveBtn').innerText = "Update";
+        updateCharCount();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteGame(index) { if(confirm("Delete?")) { gameData.splice(index, 1); saveData(); renderTable(); } }
+
+    function filterGames() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('#tableBody tr').forEach(r => {
+            r.style.display = r.innerText.toLowerCase().includes(q) ? "" : "none";
+        });
     }
 
     function downloadGameData() {
-      const blob = new Blob ([JSON.stringify(gameData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "games.json";
-      a.click();
-      URL.revokeObjectURL(url);
+        const blob = new Blob([JSON.stringify(gameData, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "games.json";
+        a.click();
     }
 
-    let currentSort = { key: null, ascending: true };
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { gameData = JSON.parse(ev.target.result); saveData(); renderTable(); };
+        reader.readAsText(e.target.files[0]);
+    });
 
-function sortTable(key) {
-  if (currentSort.key === key) {
-    currentSort.ascending = !currentSort.ascending;
-  } else {
-    currentSort.key = key;
-    currentSort.ascending = true;
-  }
-
-  const statusOrder = {
-    'Not Played': 1,
-    'In Progress': 2,
-    'Completed': 3,
-    '': 4
-  };
-
-  gameData.sort((a, b) => {
-    let valA = a[key] ?? '';
-    let valB = b[key] ?? '';
-
-if (key === 'status') {
-  valA = statusOrder[valA] ?? 4;
-  valB = statusOrder [valB] ?? 4;
-} else if (!isNaN(valA) && !isNaN(valB)) {
-  valA = Number(valA);
-  valB = Number(valB);
-} else {
-      valA = valA.toString().toLowerCase();
-      valB = valB.toString().toLowerCase();
+    function sortTable(key) {
+        gameData.sort((a, b) => {
+            let valA = a[key], valB = b[key];
+            if (key === 'hoursPlayed' || key === 'rating') return (parseFloat(valA) || 0) - (parseFloat(valB) || 0);
+            return valA.toString().toLowerCase() > valB.toString().toLowerCase() ? 1 : -1;
+        });
+        renderTable();
     }
 
-    if (valA < valB) return currentSort.ascending ? -1 : 1;
-    if (valA > valB) return currentSort.ascending ? 1 : -1;
-    return 0;
-  });
-
-  renderTable();
-}
-
-document.getElementById('fileInput').addEventListener('change', function (event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      loadGameDataFromFile(data);
-    } catch {
-      alert("Invalid JSON file.");
-    }
-  };
-  reader.readAsText(file);
-});
-
-function loadGameDataFromFile(data) {
-  gameData = data;
-  renderTable();}
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedGames = localStorage.getItem('games');
-    if (savedGames) {
-      gameData = JSON.parse(savedGames);
-      renderTable();
-    }
-  });
-
-  
-
+    window.onload = () => {
+        const t = localStorage.getItem('game-tracker-theme') || 'light';
+        changeTheme(t);
+        document.getElementById('themeSelect').value = t;
+    };
 </script>
-
 </body>
 </html>
