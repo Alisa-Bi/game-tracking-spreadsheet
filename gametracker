@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tracker</title>
+    <style>
+        :root {
+            --h: 330; --bg: #1a0012; --glass: rgba(40, 0, 30, 0.7); --border: rgba(255,255,255,0.15);
+            --txt: #ffffff; --dim: #d0d0d0; --accent: #ff007f; --glow: rgba(255, 0, 127, 0.6);
+            --danger: #ff4757; --font: 'Segoe UI', system-ui, sans-serif;
+            --tag-bg: 0.15; --tag-brd: 1px;
+        }
+        [data-theme="cyber-pink"] { 
+            --bg: #2d001f; --glass: rgba(70, 0, 50, 0.6); --accent: #ff2d95; --glow: rgba(255, 45, 149, 0.7); 
+        }
+        [data-theme="cyber-blue"] { 
+            --bg: #001a33; --glass: rgba(0, 40, 80, 0.6); --accent: #00e5ff; --glow: rgba(0, 229, 255, 0.7); 
+        }
+        [data-theme="dark"]  { --bg: #121212; --glass: #1e1e1e; --accent: #bb86fc; --txt: #fff; --glow: rgba(187, 134, 252, 0.3); }
+        [data-theme="light"] { 
+            --bg: #ffffff; --glass: #f1f3f5; --border: #6c5ce7; --txt: #1a1a1a; --dim: #444; --accent: #6c5ce7; --glow: rgba(108, 92, 231, 0.2); 
+            --tag-bg: 0.25; --tag-brd: 1.5px;
+        }
+
+        body { margin: 0; padding: 20px; font-family: var(--font); color: var(--txt); background: var(--bg); min-height: 100vh; box-sizing: border-box; }
+        .app { display: grid; grid-template-columns: 260px 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; height: calc(100vh - 40px); }
+        .glass { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .pad-box { padding: 18px; }
+        input, select, textarea { 
+            width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.1); border: 1px solid var(--border); 
+            color: var(--txt); padding: 8px; border-radius: 6px; outline: none; transition: 0.2s; font-family: inherit; margin-bottom: 10px; 
+        }
+        [data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea { background: #fff; color: #000; border: 1px solid var(--accent); }
+        select option { background: #fff; color: #000; }
+
+        label { display: block; font-size: 0.65rem; color: var(--dim); margin-bottom: 3px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .btn { border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; white-space: nowrap; font-size: 0.8rem; }
+        .btn-p { background: var(--accent); color: #fff; box-shadow: 0 0 15px var(--glow); }
+        .btn-d { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-o { background: transparent; border: 1px solid var(--border); color: var(--dim); }
+
+        .settings-bar { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); }
+        .search-bar { padding: 12px 20px; border-bottom: 1px solid var(--border); }
+
+        .tbl-wrap { overflow: auto; flex-grow: 1; padding: 0 20px; }
+        table { width: 100%; border-spacing: 0 4px; border-collapse: separate; }
+        th { text-align: left; padding: 10px 5px; color: var(--dim); font-size: 0.65rem; text-transform: uppercase; position: sticky; top: 0; background: var(--glass); z-index: 10; cursor: pointer; }
+        td { padding: 6px 5px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.85rem; vertical-align: middle; }
+        
+        .center { text-align: center; }
+
+        .st-tag { 
+            padding: 4px 0; border-radius: 4px; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; 
+            text-align: center; width: 90px; cursor: pointer; border: var(--tag-brd) solid; display: inline-block; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            user-select: none; position: relative; z-index: 2; transition: transform 0.2s ease-in-out;
+        }
+        .st-flip { transform: rotateX(360deg); }
+        
+        .st-completed { color: #00b86a; border-color: #00b86a; background: rgba(0, 184, 106, var(--tag-bg)); }
+        .st-inprogress { color: #00a8ff; border-color: #00a8ff; background: rgba(0, 168, 255, var(--tag-bg)); }
+        .st-endless { color: #f39c12; border-color: #f39c12; background: rgba(243, 156, 18, var(--tag-bg)); }
+        .st-dropped { color: #e74c3c; border-color: #e74c3c; background: rgba(231, 76, 60, var(--tag-bg)); }
+        .st-notplayed { color: #7f8c8d; border-color: #7f8c8d; background: rgba(127, 140, 141, var(--tag-bg)); }
+
+        .note-cell { color: var(--dim); max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; text-decoration: underline dotted; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--bg); border: 1px solid var(--accent); padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 0 30px var(--glow); }
+        
+        #toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: #000; border: 1px solid var(--accent); border-radius: 6px; z-index: 2000; opacity: 0; transition: 0.3s; pointer-events: none; font-size: 0.8rem; }
+        #toast.show { opacity: 1; }
+        .drawer { max-height: 0; overflow: hidden; transition: 0.3s; }
+        .drawer.open { max-height: 80px; padding-bottom: 10px; }
+        .hide { display: none !important; }
+        th.no-sort { cursor: default !important; }
+    </style>
+</head>
+<body data-theme="cyber-pink">
+
+<svg style="display:none">
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
+    <symbol id="i-del" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
+</svg>
+
+<div id="toast">Saved</div>
+
+<div id="modal-confirm" class="modal">
+    <div class="modal-box">
+        <h3 id="confirm-title" style="margin:0 0 10px 0; color:var(--accent)">Confirm</h3>
+        <p id="confirm-msg" style="color:var(--txt); font-size: 0.9rem; line-height: 1.4;"></p>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px">
+            <button class="btn btn-o" onclick="document.getElementById('modal-confirm').style.display='none'">Cancel</button>
+            <button class="btn btn-d" id="confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-note" class="modal" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <h3 style="margin:0 0 10px 0; color:var(--accent)">Notes</h3>
+        <p id="full-note-text" style="white-space: pre-wrap; font-size:0.9rem; max-height:300px; overflow:auto;"></p>
+        <button class="btn btn-o" style="width:100%; margin-top:15px" onclick="document.getElementById('modal-note').style.display='none'">Close</button>
+    </div>
+</div>
+
+<div class="app">
+    <aside class="glass">
+        <div class="pad-box">
+            <div style="font-size:1rem; font-weight:900; color:var(--accent); margin-bottom:15px; letter-spacing:1px">GAME TRACKER</div>
+            <button class="btn btn-o" style="width:100%; margin-bottom:8px;" onclick="document.getElementById('drawer').classList.toggle('open')">Filter</button>
+            <div id="drawer" class="drawer">
+                <select id="fStat" onchange="render()"><option value="All">All Statuses</option><option>Completed</option><option>In Progress</option><option>Endless</option><option>Dropped</option><option>Not Played</option></select>
+            </div>
+            <form id="form">
+                <label>Title</label><input type="text" id="t" required>
+                <div style="display:flex; gap:8px">
+                    <div style="flex:1"><label>Hours</label><div style="display:flex; gap:2px"><input type="number" id="hW" value="0"><input type="number" id="hD" value="0" max="9"></div></div>
+                    <div style="flex:1"><label>Rating</label><input type="number" id="r" min="1" max="10" step="0.1"></div>
+                </div>
+                <label>Status</label><select id="s"><option>Completed</option><option>In Progress</option><option>Endless</option><option>Dropped</option><option>Not Played</option></select>
+                <label>Progress</label><input type="text" id="p" placeholder="e.g. 100%, 50/50">
+                <label>Notes <span id="cc" style="float:right; opacity:0.5">0/500</span></label><textarea id="n" rows="3" maxlength="500" oninput="document.getElementById('cc').innerText=this.value.length+'/500'"></textarea>
+                <div style="display:flex; gap:8px; margin-top:5px">
+                    <button type="button" class="btn btn-o" id="btn-reset" onclick="resetForm()" style="flex:0 0 auto; width:80px">CLEAR</button>
+                    <button type="submit" class="btn btn-p" id="saveBtn" style="flex:1">SAVE</button>
+                </div>
+            </form>
+        </div>
+    </aside>
+
+    <main class="glass">
+        <div class="settings-bar">
+            <select onchange="setTheme(this.value)" style="width:auto; margin:0;"><option value="cyber-pink">Pink</option><option value="cyber-blue">Blue</option><option value="dark">Dark</option><option value="light">Light</option></select>
+            <div style="display:flex; gap:8px;">
+                <input type="file" id="fIn" accept=".json" class="hide" onchange="doImp(this)">
+                <button class="btn btn-o" onclick="document.getElementById('fIn').click()">Import</button>
+                <button class="btn btn-o" id="b-exp" onclick="doExp()">Export</button>
+                <button class="btn btn-o" onclick="confirmClearAll()">Clear All</button>
+            </div>
+        </div>
+        <div class="search-bar"><input type="text" id="q" placeholder="Search..." oninput="render()" style="margin:0"></div>
+        <div class="tbl-wrap">
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th width="30" class="center"><input type="checkbox" id="selAll"></th>
+                        <th onclick="sort('title')">Game <span id="s-title"></span></th>
+                        <th width="50" onclick="sort('hoursPlayed')">Hrs <span id="s-hoursPlayed"></span></th>
+                        <th width="100" onclick="sort('status')">Status <span id="s-status"></span></th>
+                        <th width="50" class="center" onclick="sort('rating')">⭐ <span id="s-rating"></span></th>
+                        <th class="no-sort">Notes</th>
+                        <th width="60" style="text-align:right" class="no-sort">Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('games')) || [];
+    let editIdx = null, sortKey = 'timestamp', sortAsc = false;
+    const $ = id => document.getElementById(id);
+    const toast = msg => { const t=$('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); };
+    const save = () => { localStorage.setItem('games', JSON.stringify(db)); render(); };
+    const setTheme = t => { document.body.setAttribute('data-theme', t); localStorage.setItem('theme', t); };
+
+    $('form').onsubmit = e => {
+        e.preventDefault();
+        const entry = { title: $('t').value, hoursPlayed: `${$('hW').value}.${$('hD').value}`, status: $('s').value, achievement: $('p').value, notes: $('n').value, rating: $('r').value, timestamp: editIdx !== null ? db[editIdx].timestamp : Date.now() };
+        if(editIdx !== null) db[editIdx] = entry; else db.push(entry);
+        save(); resetForm(); toast('Saved');
+    };
+
+    function resetForm() { $('form').reset(); editIdx=null; $('saveBtn').innerText='SAVE'; $('btn-reset').innerText='CLEAR'; render(); }
+
+    function confirmClearAll() {
+        $('confirm-title').innerText = "Clear All Games?";
+        $('confirm-msg').innerText = "Permanently delete everything?";
+        $('confirm-btn').onclick = () => { db = []; save(); resetForm(); $('modal-confirm').style.display='none'; toast('Cleared'); };
+        $('modal-confirm').style.display='flex';
+    }
+
+    function doExp() { 
+        const sel = Array.from(document.querySelectorAll('.cb:checked')).map(c => parseInt(c.dataset.rawIdx));
+        const data = sel.length ? db.filter((_,i) => sel.includes(i)) : db;
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)])); a.download = 'games.json'; a.click();
+    }
+    function doImp(input) { const r = new FileReader(); r.onload = e => { db = JSON.parse(e.target.result); save(); }; r.readAsText(input.files[0]); }
+
+    function render() {
+        const tbody = $('table').querySelector('tbody'); tbody.innerHTML = '';
+        const q = $('q').value.toLowerCase(), f = $('fStat').value;
+        const w = { 'Completed':5, 'In Progress':4, 'Endless':3, 'Dropped':2, 'Not Played':1 };
+
+        let displayDb = db.map((item, index) => ({ ...item, rawIdx: index }));
+
+        displayDb.sort((a,b) => {
+            let vA=a[sortKey], vB=b[sortKey];
+            if(sortKey==='status') { vA=w[vA]||0; vB=w[vB]||0; }
+            else if(['hoursPlayed','rating','timestamp'].includes(sortKey)) { vA=parseFloat(vA)||0; vB=parseFloat(vB)||0; }
+            else { vA=String(vA).toLowerCase(); vB=String(vB).toLowerCase(); }
+            return sortAsc ? (vA>vB?1:-1) : (vA<vB?1:-1);
+        });
+
+        document.querySelectorAll('th span').forEach(s => s.innerText = ''); 
+        if($(`s-${sortKey}`)) $(`s-${sortKey}`).innerText = sortAsc ? '↑' : '↓';
+
+        displayDb.forEach((g) => {
+            if((q && !Object.values(g).some(v => String(v).toLowerCase().includes(q))) || (f !== 'All' && g.status !== f)) return;
+            const r = tbody.insertRow(); 
+            if(g.rawIdx === editIdx) r.className = 'editing';
+            
+            const tip = g.achievement ? `title="Click to toggle progress"` : '';
+
+            r.innerHTML = `<td class="center"><input type="checkbox" class="cb" data-raw-idx="${g.rawIdx}"></td>
+                <td><b>${g.title}</b></td><td>${g.hoursPlayed}</td>
+                <td><div class="st-tag st-${g.status.replace(/\s/g,'').toLowerCase()}" data-raw-idx="${g.rawIdx}" ${tip}>${g.status}</div></td>
+                <td class="center">${g.rating||'-'}</td><td class="note-cell" data-raw-idx="${g.rawIdx}">${g.notes}</td>
+                <td style="text-align:right">
+                    <button class="btn btn-o" style="padding:4px" data-edit-i="${g.rawIdx}"><svg width="12" height="12"><use href="#i-edit"></use></svg></button>
+                    <button class="btn btn-o" style="padding:4px" data-del-i="${g.rawIdx}"><svg width="12" height="12"><use href="#i-del"></use></svg></button>
+                </td>`;
+        });
+    }
+
+    $('table').onclick = e => {
+        const t = e.target;
+        const tag = t.closest('.st-tag');
+        if (tag) {
+            const entry = db[tag.dataset.rawIdx];
+            if (entry && entry.achievement) {
+                tag.classList.toggle('st-flip');
+                setTimeout(() => {
+                    tag.innerText = tag.classList.contains('st-flip') ? entry.achievement : entry.status;
+                }, 150);
+            }
+            return;
+        }
+        if(t === $('selAll')) { document.querySelectorAll('.cb').forEach(b => b.checked = t.checked); return; }
+        const note = t.closest('.note-cell');
+        if (note) {
+            $('full-note-text').innerText = db[note.dataset.rawIdx].notes || "No notes.";
+            $('modal-note').style.display = 'flex';
+            return;
+        }
+        const editBtn = t.closest('[data-edit-i]');
+        if (editBtn) {
+            const g = db[editBtn.dataset.editI];
+            $('t').value = g.title; $('hW').value = g.hoursPlayed.split('.')[0]; $('hD').value = g.hoursPlayed.split('.')[1] || '0';
+            $('s').value = g.status; $('p').value = g.achievement; $('r').value = g.rating; $('n').value = g.notes;
+            editIdx = parseInt(editBtn.dataset.editI); $('saveBtn').innerText = 'UPDATE'; $('btn-reset').innerText = 'CANCEL'; render();
+            return;
+        }
+        const delBtn = t.closest('[data-del-i]');
+        if (delBtn) {
+            const i = delBtn.dataset.delI;
+            $('confirm-title').innerText = "Delete?";
+            $('confirm-msg').innerText = `Remove "${db[i].title}"?`;
+            $('confirm-btn').onclick = () => { db.splice(i, 1); save(); $('modal-confirm').style.display = 'none'; };
+            $('modal-confirm').style.display = 'flex';
+        }
+    };
+
+    window.sort = k => { if(sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = true; } render(); };
+    setTheme(localStorage.getItem('theme') || 'cyber-pink');
+    render();
+</script>
+</body>
+</html>
